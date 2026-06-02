@@ -7,6 +7,8 @@ const STATUS_STYLES = {
   review:  { label: "Review",      color: "var(--color-warning)" },
 };
 
+const MAX_RETRIES = 3;
+
 export default function TakeAttendance() {
   const api = useApi();
   const [description, setDescription] = useState("");
@@ -17,6 +19,10 @@ export default function TakeAttendance() {
   // Voice recording
   const [recording, setRecording] = useState(false);
   const recognitionRef = useRef(null);
+  const retryCountRef = useRef(0);
+
+  // Manual name entry
+  const [manualName, setManualName] = useState("");
 
   // Name review list: [{ id, name, status }]
   const [pendingNames, setPendingNames] = useState([]);
@@ -25,6 +31,15 @@ export default function TakeAttendance() {
   const [submitting, setSubmitting] = useState(false);
   const [summary, setSummary] = useState(null);
   const [closing, setClosing] = useState(false);
+
+  function addName(name) {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    setPendingNames((prev) => [
+      ...prev,
+      { id: Date.now(), name: trimmed, status: "review" },
+    ]);
+  }
 
   async function handleStartSession() {
     setError(null);
@@ -45,39 +60,72 @@ export default function TakeAttendance() {
     }
   }
 
-  function startRecording() {
+  function buildRecognition() {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      setError("Speech recognition is not supported in this browser.");
-      return;
-    }
+    if (!SpeechRecognition) return null;
+
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = false;
     recognition.lang = "en-US";
+
     recognition.onresult = (event) => {
+      retryCountRef.current = 0;
       const phrase = event.results[event.results.length - 1][0].transcript.trim();
-      if (phrase) {
-        setPendingNames((prev) => [
-          ...prev,
-          { id: Date.now(), name: phrase, status: "review" },
-        ]);
+      if (phrase) addName(phrase);
+    };
+
+    recognition.onerror = (event) => {
+      if (event.error === "network" && retryCountRef.current < MAX_RETRIES) {
+        retryCountRef.current += 1;
+        setError(`Speech network error — retrying (${retryCountRef.current}/${MAX_RETRIES})…`);
+        setTimeout(() => {
+          if (recognitionRef.current) {
+            try { recognitionRef.current.start(); } catch {}
+          }
+        }, 1000);
+      } else {
+        setError(
+          event.error === "network"
+            ? "Speech recognition unavailable. Use the text field below to add names."
+            : `Speech error: ${event.error}`
+        );
+        setRecording(false);
       }
     };
-    recognition.onerror = (event) => {
-      setError(`Speech error: ${event.error}`);
-      setRecording(false);
+
+    recognition.onend = () => {
+      // Only mark as stopped if we're not mid-retry
+      if (retryCountRef.current === 0) setRecording(false);
     };
-    recognition.onend = () => setRecording(false);
+
+    return recognition;
+  }
+
+  function startRecording() {
+    const recognition = buildRecognition();
+    if (!recognition) {
+      setError("Speech recognition is not supported in this browser. Use the text field below.");
+      return;
+    }
+    setError(null);
+    retryCountRef.current = 0;
     recognitionRef.current = recognition;
     recognition.start();
     setRecording(true);
   }
 
   function stopRecording() {
+    retryCountRef.current = 0;
     recognitionRef.current?.stop();
     setRecording(false);
+  }
+
+  function handleManualAdd(e) {
+    e.preventDefault();
+    addName(manualName);
+    setManualName("");
   }
 
   function updateName(id, newName) {
@@ -143,12 +191,24 @@ export default function TakeAttendance() {
         </header>
 
         <section>
-          <h3>Voice Recording</h3>
+          <h3>Add Names</h3>
           {error && <p style={{ color: "var(--color-absent)" }}>{error}</p>}
+
           <button onClick={recording ? stopRecording : startRecording}>
             {recording ? "⏹ Stop Recording" : "🎤 Start Recording"}
           </button>
           {recording && <p><em>Listening… speak a name after each pause.</em></p>}
+
+          <form onSubmit={handleManualAdd} style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem" }}>
+            <input
+              type="text"
+              value={manualName}
+              onChange={(e) => setManualName(e.target.value)}
+              placeholder="Type a name and press Enter"
+              style={{ flex: 1 }}
+            />
+            <button type="submit" disabled={!manualName.trim()}>Add</button>
+          </form>
         </section>
 
         {pendingNames.length > 0 && (
