@@ -29,7 +29,7 @@ export default function Login() {
         return;
       }
 
-      login(data.access, { username, role: data.role });
+      login(data.access, data.refresh, { username, role: data.role });
       navigate("/");
     } catch {
       setError("Could not reach the server.");
