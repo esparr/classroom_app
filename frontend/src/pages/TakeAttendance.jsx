@@ -2,9 +2,9 @@ import { useState, useRef } from "react";
 import { useApi } from "../hooks/useApi";
 
 const STATUS_STYLES = {
-  matched:    { label: "Matched",     color: "var(--color-present)" },
-  new:        { label: "New Student", color: "#2196f3" },
-  review:     { label: "Review",      color: "var(--color-warning)" },
+  matched: { label: "Matched",     color: "var(--color-present)" },
+  new:     { label: "New Student", color: "#2196f3" },
+  review:  { label: "Review",      color: "var(--color-warning)" },
 };
 
 export default function TakeAttendance() {
@@ -21,6 +21,11 @@ export default function TakeAttendance() {
   // Name review list: [{ id, name, status }]
   const [pendingNames, setPendingNames] = useState([]);
 
+  // Submission
+  const [submitting, setSubmitting] = useState(false);
+  const [summary, setSummary] = useState(null);
+  const [closing, setClosing] = useState(false);
+
   async function handleStartSession() {
     setError(null);
     setStarting(true);
@@ -29,10 +34,7 @@ export default function TakeAttendance() {
         method: "POST",
         body: JSON.stringify({ description }),
       });
-      if (!res || !res.ok) {
-        setError("Failed to start session.");
-        return;
-      }
+      if (!res || !res.ok) { setError("Failed to start session."); return; }
       const data = await res.json();
       setSession(data);
       setDescription("");
@@ -50,15 +52,12 @@ export default function TakeAttendance() {
       setError("Speech recognition is not supported in this browser.");
       return;
     }
-
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = false;
     recognition.lang = "en-US";
-
     recognition.onresult = (event) => {
-      const lastResult = event.results[event.results.length - 1];
-      const phrase = lastResult[0].transcript.trim();
+      const phrase = event.results[event.results.length - 1][0].transcript.trim();
       if (phrase) {
         setPendingNames((prev) => [
           ...prev,
@@ -66,14 +65,11 @@ export default function TakeAttendance() {
         ]);
       }
     };
-
     recognition.onerror = (event) => {
       setError(`Speech error: ${event.error}`);
       setRecording(false);
     };
-
     recognition.onend = () => setRecording(false);
-
     recognitionRef.current = recognition;
     recognition.start();
     setRecording(true);
@@ -86,18 +82,56 @@ export default function TakeAttendance() {
 
   function updateName(id, newName) {
     setPendingNames((prev) =>
-      prev.map((entry) => (entry.id === id ? { ...entry, name: newName } : entry))
+      prev.map((e) => (e.id === id ? { ...e, name: newName } : e))
     );
   }
 
   function updateStatus(id, newStatus) {
     setPendingNames((prev) =>
-      prev.map((entry) => (entry.id === id ? { ...entry, status: newStatus } : entry))
+      prev.map((e) => (e.id === id ? { ...e, status: newStatus } : e))
     );
   }
 
   function removeName(id) {
-    setPendingNames((prev) => prev.filter((entry) => entry.id !== id));
+    setPendingNames((prev) => prev.filter((e) => e.id !== id));
+  }
+
+  async function handleSubmitAttendance() {
+    if (!pendingNames.length) return;
+    setError(null);
+    setSubmitting(true);
+    try {
+      const res = await api(`/api/sessions/${session.id}/attendance/bulk/`, {
+        method: "POST",
+        body: JSON.stringify({ names: pendingNames.map((e) => e.name) }),
+      });
+      if (!res || !res.ok) { setError("Failed to submit attendance."); return; }
+      const data = await res.json();
+      setSummary(data);
+      setPendingNames([]);
+    } catch {
+      setError("Could not reach the server.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleCloseSession() {
+    setError(null);
+    setClosing(true);
+    try {
+      const res = await api(`/api/sessions/${session.id}/close/`, {
+        method: "PATCH",
+      });
+      if (!res || !res.ok) { setError("Failed to close session."); return; }
+      setSession(null);
+      setPendingNames([]);
+      setSummary(null);
+    } catch {
+      setError("Could not reach the server.");
+    } finally {
+      setClosing(false);
+    }
   }
 
   if (session) {
@@ -122,11 +156,7 @@ export default function TakeAttendance() {
             <h3>Captured Names ({pendingNames.length})</h3>
             <table>
               <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Status</th>
-                  <th></th>
-                </tr>
+                <tr><th>Name</th><th>Status</th><th></th></tr>
               </thead>
               <tbody>
                 {pendingNames.map((entry) => {
@@ -159,8 +189,40 @@ export default function TakeAttendance() {
                 })}
               </tbody>
             </table>
+            <button onClick={handleSubmitAttendance} disabled={submitting}>
+              {submitting ? "Submitting…" : "Submit Attendance"}
+            </button>
           </section>
         )}
+
+        {summary && (
+          <section>
+            <h3>Attendance Submitted</h3>
+            <p>
+              <span style={{ color: "var(--color-present)" }}>
+                ✓ {summary.matched?.length ?? 0} matched
+              </span>
+              {" · "}
+              <span style={{ color: "#2196f3" }}>
+                + {summary.created?.length ?? 0} new profiles created
+              </span>
+            </p>
+            {summary.created?.length > 0 && (
+              <details>
+                <summary>New students added</summary>
+                <ul>
+                  {summary.created.map((name) => <li key={name}>{name}</li>)}
+                </ul>
+              </details>
+            )}
+          </section>
+        )}
+
+        <footer>
+          <button onClick={handleCloseSession} disabled={closing}>
+            {closing ? "Closing…" : "Close Session"}
+          </button>
+        </footer>
       </article>
     );
   }
