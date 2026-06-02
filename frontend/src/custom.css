@@ -1,0 +1,9 @@
+:root {
+  --color-present: #4caf50;
+  --color-absent: #f44336;
+  --color-warning: #ff9800;
+}
+.attendance-present { color: var(--color-present); }
+.attendance-absent  { color: var(--color-absent); }
+.attendance-warning { color: var(--color-warning); }
+.attendance-danger  { color: var(--color-absent); font-weight: bold; }
