@@ -48,6 +48,70 @@ export default function AdminDashboard() {
           </article>
         </div>
       </section>
+
+      <section>
+        <h3>Top 10 Attendees</h3>
+        <table>
+          <thead>
+            <tr><th>Student Name</th><th>Sessions Attended</th></tr>
+          </thead>
+          <tbody>
+            {data.top_attendees.length > 0 ? data.top_attendees.map((s) => (
+              <tr key={s.student__id}>
+                <td>{s.student__name}</td>
+                <td>{s.sessions_attended}</td>
+              </tr>
+            )) : (
+              <tr><td colSpan={2}>No data yet.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h3>Needs Attention <small>(below 50% attendance)</small></h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Sessions Present</th>
+              <th>Sessions Available</th>
+              <th>Attendance %</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.low_attendance_students.length > 0 ? data.low_attendance_students.map((s) => (
+              <tr key={s.id}>
+                <td>{s.name}</td>
+                <td>{s.sessions_present ?? "—"}</td>
+                <td>{s.total_sessions ?? "—"}</td>
+                <td className="attendance-danger">{s.attendance_percentage}%</td>
+              </tr>
+            )) : (
+              <tr><td colSpan={4}>No students below 50%.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h3>Sessions per Instructor</h3>
+        <table>
+          <thead>
+            <tr><th>Instructor</th><th>Total Sessions</th></tr>
+          </thead>
+          <tbody>
+            {data.sessions_per_instructor.length > 0 ? data.sessions_per_instructor.map((r) => (
+              <tr key={r.created_by__id}>
+                <td>{r.created_by__username}</td>
+                <td>{r.session_count}</td>
+              </tr>
+            )) : (
+              <tr><td colSpan={2}>No sessions yet.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </section>
     </article>
   );
 }
