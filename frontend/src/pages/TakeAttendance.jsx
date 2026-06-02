@@ -1,6 +1,12 @@
 import { useState, useRef } from "react";
 import { useApi } from "../hooks/useApi";
 
+const STATUS_STYLES = {
+  matched:    { label: "Matched",     color: "var(--color-present)" },
+  new:        { label: "New Student", color: "#2196f3" },
+  review:     { label: "Review",      color: "var(--color-warning)" },
+};
+
 export default function TakeAttendance() {
   const api = useApi();
   const [description, setDescription] = useState("");
@@ -10,8 +16,10 @@ export default function TakeAttendance() {
 
   // Voice recording
   const [recording, setRecording] = useState(false);
-  const [pendingNames, setPendingNames] = useState([]);
   const recognitionRef = useRef(null);
+
+  // Name review list: [{ id, name, status }]
+  const [pendingNames, setPendingNames] = useState([]);
 
   async function handleStartSession() {
     setError(null);
@@ -54,7 +62,7 @@ export default function TakeAttendance() {
       if (phrase) {
         setPendingNames((prev) => [
           ...prev,
-          { id: Date.now(), name: phrase },
+          { id: Date.now(), name: phrase, status: "review" },
         ]);
       }
     };
@@ -74,6 +82,22 @@ export default function TakeAttendance() {
   function stopRecording() {
     recognitionRef.current?.stop();
     setRecording(false);
+  }
+
+  function updateName(id, newName) {
+    setPendingNames((prev) =>
+      prev.map((entry) => (entry.id === id ? { ...entry, name: newName } : entry))
+    );
+  }
+
+  function updateStatus(id, newStatus) {
+    setPendingNames((prev) =>
+      prev.map((entry) => (entry.id === id ? { ...entry, status: newStatus } : entry))
+    );
+  }
+
+  function removeName(id) {
+    setPendingNames((prev) => prev.filter((entry) => entry.id !== id));
   }
 
   if (session) {
@@ -96,11 +120,45 @@ export default function TakeAttendance() {
         {pendingNames.length > 0 && (
           <section>
             <h3>Captured Names ({pendingNames.length})</h3>
-            <ul>
-              {pendingNames.map((entry) => (
-                <li key={entry.id}>{entry.name}</li>
-              ))}
-            </ul>
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingNames.map((entry) => {
+                  const style = STATUS_STYLES[entry.status] || STATUS_STYLES.review;
+                  return (
+                    <tr key={entry.id}>
+                      <td>
+                        <input
+                          type="text"
+                          value={entry.name}
+                          onChange={(e) => updateName(entry.id, e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <select
+                          value={entry.status}
+                          onChange={(e) => updateStatus(entry.id, e.target.value)}
+                          style={{ color: style.color, fontWeight: "bold" }}
+                        >
+                          {Object.entries(STATUS_STYLES).map(([key, val]) => (
+                            <option key={key} value={key}>{val.label}</option>
+                          ))}
+                        </select>
+                      </td>
+                      <td>
+                        <button onClick={() => removeName(entry.id)}>✕</button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </section>
         )}
       </article>
