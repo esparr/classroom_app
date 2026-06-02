@@ -18,7 +18,7 @@ dist/
 npm-debug.log*
 
 # DSPy / AI
-ai/programs/*.json
+backend/ai/programs/*.json
 
 # General
 .vscode/settings.json
