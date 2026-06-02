@@ -2,6 +2,13 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useApi } from "../hooks/useApi";
 
+const CONCERN_COLORS = {
+  none:   "attendance-present",
+  low:    "attendance-warning",
+  medium: "attendance-warning",
+  high:   "attendance-danger",
+};
+
 export default function StudentDetail() {
   const { id } = useParams();
   const api = useApi();
@@ -10,6 +17,9 @@ export default function StudentDetail() {
   const [noteSaved, setNoteSaved] = useState(false);
   const [summary, setSummary] = useState(null);
   const [summarizing, setSummarizing] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [trend, setTrend] = useState(null);
+  const [trendLoading, setTrendLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -17,10 +27,14 @@ export default function StudentDetail() {
     Promise.all([
       api(`/api/students/${id}/`).then((res) => res?.json()),
       api(`/api/students/${id}/note/`).then((res) => res?.json()),
+      api(`/api/students/${id}/attendance/`)
+        .then((res) => (res?.ok ? res.json() : []))
+        .catch(() => []),
     ])
-      .then(([studentData, noteData]) => {
+      .then(([studentData, noteData, historyData]) => {
         setStudent(studentData);
         setNote(noteData?.content ?? "");
+        setHistory(historyData ?? []);
       })
       .catch(() => setError("Failed to load student."))
       .finally(() => setLoading(false));
@@ -43,6 +57,14 @@ export default function StudentDetail() {
     const res = await api(`/api/students/${id}/summarize-note/`, { method: "POST" });
     if (res?.ok) setSummary(await res.json());
     setSummarizing(false);
+  }
+
+  async function handleTrend() {
+    setTrendLoading(true);
+    setTrend(null);
+    const res = await api(`/api/students/${id}/attendance-trend/`);
+    if (res?.ok) setTrend(await res.json());
+    setTrendLoading(false);
   }
 
   if (loading) return <p>Loading…</p>;
@@ -70,6 +92,52 @@ export default function StudentDetail() {
           <dt>Attendance rate</dt>
           <dd className={attClass}>{attPct}%</dd>
         </dl>
+      </section>
+
+      <section>
+        <h3>Attendance History</h3>
+        {history.length > 0 ? (
+          <table>
+            <thead>
+              <tr>
+                <th>Session</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {history.map((record) => (
+                <tr
+                  key={record.session_id}
+                  className={record.status === "present" ? "attendance-present" : "attendance-absent"}
+                >
+                  <td>#{record.session_id}</td>
+                  <td>{record.started_at ? new Date(record.started_at).toLocaleDateString() : "—"}</td>
+                  <td style={{ textTransform: "capitalize" }}>{record.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>No attendance history available.</p>
+        )}
+
+        <button onClick={handleTrend} disabled={trendLoading}>
+          {trendLoading ? "Analyzing…" : "View Attendance Trend"}
+        </button>
+
+        {trend && (
+          <aside>
+            <h4>Attendance Trend</h4>
+            <p>{trend.trend_summary}</p>
+            <p>
+              Concern level:{" "}
+              <strong className={CONCERN_COLORS[trend.concern_flag] ?? "attendance-warning"}>
+                {trend.concern_flag}
+              </strong>
+            </p>
+          </aside>
+        )}
       </section>
 
       <section>
