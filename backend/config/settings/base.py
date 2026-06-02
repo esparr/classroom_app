@@ -91,3 +91,6 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=8),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
+
+DSPY_MODEL = os.environ.get("DSPY_MODEL", "openai/gpt-4o-mini")
+DSPY_API_KEY = os.environ.get("DSPY_API_KEY", "")
