@@ -31,7 +31,17 @@ pipenv run python manage.py migrate
 pipenv run python manage.py createsuperuser
 ```
 
----
+> **Note — pipenv inside a virtual environment:** If you already have a Python virtual environment active (e.g. via pyenv), pipenv will use it instead of creating its own. Prefix all `pipenv run` commands with `PIPENV_IGNORE_VIRTUALENVS=1` to force pipenv to use the project's dedicated virtualenv:
+>
+> ```bash
+> PIPENV_IGNORE_VIRTUALENVS=1 pipenv run python manage.py migrate
+> ```
+>
+> To avoid typing this every time, add the following to your shell profile (`.zshrc`, `.bashrc`, etc.):
+>
+> ```bash
+> export PIPENV_IGNORE_VIRTUALENVS=1
+> ```
 
 ## Frontend Setup
 
