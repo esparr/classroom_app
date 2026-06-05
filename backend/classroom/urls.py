@@ -2,7 +2,7 @@ from django.urls import path
 from classroom.views.auth_views import login, refresh, me
 from classroom.views.session_views import create_session, list_sessions, close_session
 from classroom.views.attendance_views import bulk_attendance, list_attendance
-from classroom.views.student_views import list_students, student_detail, get_note, update_note
+from classroom.views.student_views import list_students, student_detail, get_note, update_note, summarize_student_note, student_attendance_trend
 from classroom.views.admin_views import dashboard
 
 urlpatterns = [
@@ -25,6 +25,8 @@ urlpatterns = [
     path("students/<int:student_id>/", student_detail),
     path("students/<int:student_id>/note/", get_note),
     path("students/<int:student_id>/note/update/", update_note),
+    path("students/<int:student_id>/summarize-note/", summarize_student_note),
+    path("students/<int:student_id>/attendance-trend/", student_attendance_trend),
 
     # Admin
     path("admin/dashboard/", dashboard),

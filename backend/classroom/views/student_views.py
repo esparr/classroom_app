@@ -5,6 +5,7 @@ from rest_framework import status
 from classroom.models import Student, StudentNote, AttendanceRecord
 from classroom.serializers import StudentSerializer, StudentNoteSerializer
 from classroom.permissions import IsInstructorOrAdmin
+from ai.services import summarize_note, get_attendance_trend
 
 
 @api_view(["GET"])
@@ -66,3 +67,42 @@ def update_note(request, student_id):
         serializer.save()
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated, IsInstructorOrAdmin])
+def summarize_student_note(request, student_id):
+    try:
+        student = Student.objects.get(pk=student_id)
+    except Student.DoesNotExist:
+        return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    note = StudentNote.objects.filter(student=student, instructor=request.user).first()
+    if not note or not note.content.strip():
+        return Response({"detail": "No note content to summarize."}, status=status.HTTP_400_BAD_REQUEST)
+
+    result = summarize_note(note.content)
+    return Response(result)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated, IsInstructorOrAdmin])
+def student_attendance_trend(request, student_id):
+    try:
+        student = Student.objects.get(pk=student_id)
+    except Student.DoesNotExist:
+        return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    records = (
+        AttendanceRecord.objects
+        .filter(student=student)
+        .order_by("session__started_at")
+        .values("session_id", "status")
+    )
+    records_list = [{"session": r["session_id"], "status": r["status"]} for r in records]
+
+    if not records_list:
+        return Response({"detail": "No attendance records found."}, status=status.HTTP_404_NOT_FOUND)
+
+    result = get_attendance_trend(records_list)
+    return Response(result)
