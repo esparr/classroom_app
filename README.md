@@ -1,6 +1,6 @@
 # Classroom Attendance App
 
-A web application for tracking CrossFit class attendance. Django REST API backend with a React + Vite frontend.
+A web application for tracking class attendance. Django REST API backend with a React + Vite frontend.
 
 ---
 
@@ -42,8 +42,6 @@ pipenv run python manage.py createsuperuser
 > ```bash
 > export PIPENV_IGNORE_VIRTUALENVS=1
 > ```
-
----
 
 ## Frontend Setup
 
