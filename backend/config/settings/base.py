@@ -102,3 +102,7 @@ SIMPLE_JWT = {
 
 DSPY_MODEL = os.environ.get("DSPY_MODEL", "openai/gpt-4o-mini")
 DSPY_API_KEY = os.environ.get("DSPY_API_KEY", "")
+# Set to e.g. "http://localhost:11434/v1" to use a local Ollama instance instead of a cloud LM
+DSPY_API_BASE = os.environ.get("DSPY_API_BASE", "")
+# Set to e.g. "http://localhost:8080/v1" to use a local MLX server (mlx_lm.server) instead of a cloud LM
+DSPY_MLX_BASE_URL = os.environ.get("DSPY_MLX_BASE_URL", "")
