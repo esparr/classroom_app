@@ -1,6 +1,6 @@
 # Classroom Attendance App
 
-A web application for tracking CrossFit class attendance. Django REST API backend with a React + Vite frontend.
+A web application for tracking class attendance. Django REST API backend with a React + Vite frontend.
 
 ---
 
@@ -31,6 +31,7 @@ pipenv run python manage.py migrate
 pipenv run python manage.py createsuperuser
 ```
 
+<<<<<<< HEAD
 > **Note — pipenv inside a virtual environment:** If you already have a Python virtual environment active (e.g. via pyenv), pipenv will use it instead of creating its own. Prefix all `pipenv run` commands with `PIPENV_IGNORE_VIRTUALENVS=1` to force pipenv to use the project's dedicated virtualenv:
 >
 > ```bash
@@ -43,6 +44,8 @@ pipenv run python manage.py createsuperuser
 > export PIPENV_IGNORE_VIRTUALENVS=1
 > ```
 
+=======
+>>>>>>> main
 ---
 
 ## Frontend Setup
