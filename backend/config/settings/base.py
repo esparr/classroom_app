@@ -9,7 +9,14 @@ load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.environ["SECRET_KEY"]
 
-ALLOWED_HOSTS = []
+DEBUG = os.environ.get("DEBUG", "False").lower() in ("true", "1", "yes")
+
+_default_hosts = "localhost,127.0.0.1"
+ALLOWED_HOSTS = [
+    h.strip()
+    for h in os.environ.get("ALLOWED_HOSTS", _default_hosts).split(",")
+    if h.strip()
+]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -64,11 +71,12 @@ DATABASES = {
     }
 }
 
+_auth_pv = "django.contrib.auth.password_validation"
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+    {"NAME": f"{_auth_pv}.UserAttributeSimilarityValidator"},
+    {"NAME": f"{_auth_pv}.MinimumLengthValidator"},
+    {"NAME": f"{_auth_pv}.CommonPasswordValidator"},
+    {"NAME": f"{_auth_pv}.NumericPasswordValidator"},
 ]
 
 LANGUAGE_CODE = "en-us"

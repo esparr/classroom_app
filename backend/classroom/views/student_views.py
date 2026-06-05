@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from classroom.models import Student, StudentNote, AttendanceRecord
 from classroom.serializers import StudentSerializer, StudentNoteSerializer
-from classroom.permissions import IsInstructorOrAdmin
+from classroom.permissions import IsInstructorOrAdmin, IsAdminRole
 from ai.services import summarize_note, get_attendance_trend
 
 
@@ -106,3 +106,41 @@ def student_attendance_trend(request, student_id):
 
     result = get_attendance_trend(records_list)
     return Response(result)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated, IsInstructorOrAdmin])
+def student_attendance_history(request, student_id):
+    try:
+        student = Student.objects.get(pk=student_id)
+    except Student.DoesNotExist:
+        return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    records = (
+        AttendanceRecord.objects
+        .filter(student=student)
+        .select_related("session")
+        .order_by("session__started_at")
+    )
+    data = [
+        {
+            "session_id": r.session.pk,
+            "started_at": r.session.started_at,
+            "status": r.status,
+        }
+        for r in records
+    ]
+    return Response(data)
+
+
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated, IsAdminRole])
+def deactivate_student(request, student_id):
+    try:
+        student = Student.objects.get(pk=student_id)
+    except Student.DoesNotExist:
+        return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    student.is_active = False
+    student.save()
+    return Response(StudentSerializer(student).data)
