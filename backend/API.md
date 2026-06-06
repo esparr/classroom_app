@@ -15,6 +15,26 @@ Authorization: Bearer <access_token>
 
 ---
 
+## User Management
+
+Users cannot be created through the API. New users must be created through the Django admin panel at `http://localhost:8000/admin/`.
+
+### Creating a user
+
+1. Log into the admin panel with a superuser account
+2. Go to **Authentication and Authorization → Users → Add User**
+3. Set a username and password, then save
+
+### Assigning a role
+
+Every user needs a `UserProfile` to log in via the API — without one, `role` will be `null` and the user will be denied access to protected endpoints.
+
+1. Go to **Classroom → User Profiles → Add User Profile**
+2. Select the user and assign a role: `instructor` or `admin`
+3. Save
+
+---
+
 ## Auth
 
 ### `POST /auth/login/`
