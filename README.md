@@ -15,6 +15,43 @@ A web application for tracking class attendance. Django REST API backend with a 
 
 ## Backend Setup
 
+### 1. Create the PostgreSQL database
+
+Make sure PostgreSQL is running:
+```brew services list```
+
+# you should see this output
+Name          Status  User         File
+postgresql@15 started yourusername ~/Library/LaunchAgents/homebrew.mxcl.postgresql@15.plist
+
+If it isn't, start it with:
+
+```bash
+# macOS (Homebrew)
+brew services start postgresql@<version>
+
+# Linux
+sudo systemctl start postgresql
+```
+
+Then:
+
+```bash
+createuser -dP your_db_user
+createdb -U your_db_user classroom_db
+```
+
+`-d` grants the user permission to create databases (needed for the test suite), and `-P` will prompt you to set a password.
+
+To check if the database was created, run:
+```psql -l```
+
+You should see a list of all of your postgres databases with their users and other details. 
+
+Here is a reference sheet for postgres commands: https://quickref.me/postgres
+
+### 2. Install dependencies and configure environment
+
 ```bash
 cd backend
 
@@ -23,7 +60,13 @@ pipenv install
 
 # Copy env template and fill in your values
 cp .env.example .env
+```
 
+Set `DB_USER`, `DB_PASSWORD`, and `DB_NAME` in `.env` to match what you created above.
+
+### 3. Run migrations
+
+```bash
 # Apply migrations
 pipenv run python manage.py migrate
 
@@ -71,6 +114,43 @@ npm run dev
 ```
 
 App available at `http://localhost:5173/`
+
+---
+
+## LLM Configuration
+
+DSPy is used for AI features such as fuzzy name matching, note summarization, and attendance trend analysis. You can configure it to use a cloud provider or a local model by setting the following variables in `.env`.
+
+### Cloud (default)
+
+```bash
+DSPY_MODEL=anthropic/claude-haiku-4-5-20251001
+DSPY_API_KEY=your_api_key
+```
+
+Any DSPy-compatible model string works (e.g. `openai/gpt-4o-mini`, `anthropic/claude-haiku-4-5-20251001`).
+
+### Local — Ollama
+
+See the [Ollama docs](https://ollama.com) for installation and setup. Once running, set:
+
+```bash
+DSPY_MODEL=openai/llama3.2
+DSPY_API_BASE=http://localhost:11434/v1
+```
+
+### Local — MLX (Apple Silicon)
+
+See the [mlx-lm docs](https://github.com/ml-explore/mlx-lm) for installation and setup. Start an MLX server with `mlx_lm.server --model <model>`, then set:
+
+```bash
+DSPY_MODEL=openai/<your-mlx-model-name>
+DSPY_MLX_BASE_URL=http://localhost:8080/v1
+```
+
+If multiple options are configured, priority order is: **MLX → Ollama → Cloud**.
+
+> **Note:** Local models keep student data (names and instructor notes) entirely on-premise. Cloud models send this data to an external API.
 
 ---
 
