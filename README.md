@@ -180,9 +180,10 @@ If multiple options are configured, priority order is: **MLX → Ollama → Clou
 
 Before any deployment:
 
-- Generate a new `SECRET_KEY` — use `python -c "import secrets; print(secrets.token_urlsafe(50))"` and replace the placeholder value.
+- Rotate `SECRET_KEY` — generate a new one and replace the development value.
 - Rotate `DSPY_API_KEY` — generate a fresh key from your AI provider and revoke the old one.
 - Set `DEBUG=False` in production.
 - Restrict `ALLOWED_HOSTS` to your actual domain.
+- Set `DJANGO_SETTINGS_MODULE=config.settings.production` and configure `CORS_ALLOWED_ORIGINS` to your frontend domain — do not use `CORS_ALLOW_ALL_ORIGINS` in production.
 
 If a secret is ever accidentally committed, treat it as compromised: revoke it immediately and generate a new one before continuing.
