@@ -20,9 +20,10 @@ A web application for tracking class attendance. Django REST API backend with a 
 Make sure PostgreSQL is running:
 ```brew services list```
 
-# you should see this output
-Name          Status  User         File
-postgresql@15 started yourusername ~/Library/LaunchAgents/homebrew.mxcl.postgresql@15.plist
+You should see this output:
+| Name | Status | User | File |
+|----------|----------|----------|----------|
+| postgresql@15 | started | yourusername | ~/Library/LaunchAgents/homebrew.mxcl.postgresql@15.plist |
 
 If it isn't, start it with:
 
@@ -44,7 +45,9 @@ createdb -U your_db_user classroom_db
 `-d` grants the user permission to create databases (needed for the test suite), and `-P` will prompt you to set a password.
 
 To check if the database was created, run:
-```psql -l```
+```bash
+psql -l
+```
 
 You should see a list of all of your postgres databases with their users and other details. 
 
