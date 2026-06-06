@@ -65,17 +65,34 @@ pipenv install
 cp .env.example .env
 ```
 
-Set `DB_USER`, `DB_PASSWORD`, and `DB_NAME` in `.env` to match what you created above.
+Fill in the following required values in `.env`:
 
-### 3. Run migrations
+- `SECRET_KEY` — generate one with: `python -c "import secrets; print(secrets.token_urlsafe(50))"`
+- `DB_USER`, `DB_PASSWORD`, `DB_NAME` — match what you created in step 1
+- `DSPY_API_KEY` — required if using a cloud LLM (see [LLM Configuration](#llm-configuration))
+
+### 3. Run migrations and create a superuser
 
 ```bash
 # Apply migrations
 pipenv run python manage.py migrate
 
-# Create a superuser (optional)
+# Create a superuser — required to access the admin panel
 pipenv run python manage.py createsuperuser
 ```
+
+### 4. Create a user and assign a role
+
+Start the backend server and go to `http://localhost:8000/admin/`. Log in with your superuser credentials, then:
+
+1. Go to **Authentication and Authorization → Users → Add User** to create an instructor or admin account
+2. Go to **Classroom → User Profiles → Add User Profile** to assign a role (`instructor` or `admin`) to the new user
+
+> Users without a profile cannot log in via the API.
+
+### 5. Configure CORS
+
+CORS is pre-configured for local development — `CORS_ALLOW_ALL_ORIGINS = True` is set in the development settings, so the frontend at `http://localhost:5173` can reach the backend at `http://localhost:8000` without any extra setup.
 
 > **Note — pipenv inside a virtual environment:** If you already have a Python virtual environment active (e.g. via pyenv), pipenv will use it instead of creating its own. Prefix all `pipenv run` commands with `PIPENV_IGNORE_VIRTUALENVS=1` to force pipenv to use the project's dedicated virtualenv:
 >
