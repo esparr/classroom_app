@@ -48,7 +48,7 @@ export default function Students() {
           placeholder="Filter by name…"
         />
       </label>
-      <table>
+      <table className="table-cards">
         <thead>
           <tr>
             <th>Name</th>
@@ -60,14 +60,14 @@ export default function Students() {
         <tbody>
           {filtered.map((student) => (
             <tr key={student.id}>
-              <td>{student.name}</td>
-              <td>
+              <td data-label="Name">{student.name}</td>
+              <td data-label="Active">
                 <span className={student.is_active ? "attendance-present" : "attendance-absent"}>
                   {student.is_active ? "Active" : "Inactive"}
                 </span>
               </td>
-              <td>{student.total_sessions_attended}</td>
-              <td>
+              <td data-label="Sessions Attended">{student.total_sessions_attended}</td>
+              <td data-label="Actions">
                 <Link to={`/students/${student.id}`}>View Profile</Link>
                 {user?.role === "admin" && student.is_active && (
                   <> &middot; <button onClick={() => handleDeactivate(student.id)}>Deactivate</button></>
