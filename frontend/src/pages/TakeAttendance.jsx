@@ -214,7 +214,7 @@ export default function TakeAttendance() {
         {pendingNames.length > 0 && (
           <section>
             <h3>Captured Names ({pendingNames.length})</h3>
-            <table>
+            <table className="table-cards">
               <thead>
                 <tr><th>Name</th><th>Status</th><th></th></tr>
               </thead>
@@ -223,14 +223,14 @@ export default function TakeAttendance() {
                   const style = STATUS_STYLES[entry.status] || STATUS_STYLES.review;
                   return (
                     <tr key={entry.id}>
-                      <td>
+                      <td data-label="Name">
                         <input
                           type="text"
                           value={entry.name}
                           onChange={(e) => updateName(entry.id, e.target.value)}
                         />
                       </td>
-                      <td>
+                      <td data-label="Status">
                         <select
                           value={entry.status}
                           onChange={(e) => updateStatus(entry.id, e.target.value)}
@@ -241,7 +241,7 @@ export default function TakeAttendance() {
                           ))}
                         </select>
                       </td>
-                      <td>
+                      <td data-label="Remove">
                         <button onClick={() => removeName(entry.id)}>✕</button>
                       </td>
                     </tr>

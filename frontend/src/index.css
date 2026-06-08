@@ -58,12 +58,30 @@ body {
   width: 1126px;
   max-width: 100%;
   margin: 0 auto;
-  text-align: center;
   border-inline: 1px solid var(--border);
   min-height: 100svh;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  padding: 0 2rem;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 h1,
@@ -92,7 +110,7 @@ h2 {
   }
 }
 p {
-  margin: 0;
+  margin: 0 0 0.75rem;
 }
 
 code,
@@ -108,4 +126,70 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  #root {
+    padding: 0 0.75rem;
+    border-inline: none;
+  }
+
+  h1 {
+    font-size: 28px;
+    margin: 16px 0;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+
+  /* Scrollable fallback for all tables */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Card layout for opted-in tables */
+  .table-cards {
+    display: block;
+    overflow-x: unset;
+  }
+
+  .table-cards thead {
+    display: none;
+  }
+
+  .table-cards tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .table-cards tr {
+    display: block;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem;
+  }
+
+  .table-cards td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.3rem 0;
+    border: none;
+    gap: 0.5rem;
+  }
+
+  .table-cards td::before {
+    content: attr(data-label);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text);
+    flex-shrink: 0;
+  }
 }
