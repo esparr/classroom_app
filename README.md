@@ -15,6 +15,8 @@ A web application for tracking class attendance. Django REST API backend with a 
 
 ## Backend Setup
 
+> All backend commands run from the `classroom_app/backend/` directory unless noted otherwise.
+
 ### 1. Create the PostgreSQL database
 
 Make sure PostgreSQL is running:
@@ -73,6 +75,7 @@ Fill in the following required values in `.env`:
 
 ### 3. Run migrations and create a superuser
 
+From `classroom_app/backend/`:
 ```bash
 # Apply migrations
 pipenv run python manage.py migrate
@@ -83,6 +86,7 @@ pipenv run python manage.py createsuperuser
 
 ### 4. Seed default users and test data (recommended)
 
+From `classroom_app/backend/`:
 ```bash
 pipenv run python manage.py seed_admin
 ```
@@ -122,6 +126,7 @@ CORS is pre-configured for local development — `CORS_ALLOW_ALL_ORIGINS = True`
 
 ## Frontend Setup
 
+From `classroom_app/`:
 ```bash
 cd frontend
 
