@@ -81,12 +81,26 @@ pipenv run python manage.py migrate
 pipenv run python manage.py createsuperuser
 ```
 
-### 4. Create a user and assign a role
+### 4. Seed default users and test data (recommended)
 
-Start the backend server and go to `http://localhost:8000/admin/`. Log in with your superuser credentials, then:
+```bash
+pipenv run python manage.py seed_admin
+```
 
-1. Go to **Authentication and Authorization → Users → Add User** to create an instructor or admin account
-2. Go to **Classroom → User Profiles → Add User Profile** to assign a role (`instructor` or `admin`) to the new user
+This creates the following accounts and 10 test students so you can start using the app immediately:
+
+| Username | Password | Role |
+|---|---|---|
+| `admin` | `admin123` | admin |
+| `instructor1` | `instructor123` | instructor |
+| `instructor2` | `instructor123` | instructor |
+
+Safe to run multiple times — it will not create duplicates.
+
+If you'd prefer to create users manually, start the backend server and go to `http://localhost:8000/admin/`. Log in with your superuser credentials, then:
+
+1. Go to **Authentication and Authorization → Users → Add User** to create an account
+2. Go to **Classroom → User Profiles → Add User Profile** to assign a role (`instructor` or `admin`)
 
 > Users without a profile cannot log in via the API.
 
