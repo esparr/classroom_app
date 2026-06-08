@@ -1,6 +1,6 @@
 # Classroom Attendance App
 
-A web application for tracking class attendance. Django REST API backend with a React + Vite frontend.
+A web application for tracking class attendance. Django REST API backend with a React + Vite frontend. 
 
 ---
 
@@ -10,6 +10,7 @@ A web application for tracking class attendance. Django REST API backend with a 
 - **Node.js 26+** — [nodejs.org](https://nodejs.org/)
 - **PostgreSQL** — [postgresql.org](https://www.postgresql.org/)
 - **pipenv** — `pip install pipenv` or `brew install pipenv`
+- **Google Chrome** — required for voice recognition
 
 ---
 
