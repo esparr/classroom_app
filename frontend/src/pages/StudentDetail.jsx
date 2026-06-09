@@ -38,7 +38,7 @@ export default function StudentDetail() {
       })
       .catch(() => setError("Failed to load student."))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, api]);
 
   async function handleNoteBlur() {
     const res = await api(`/api/students/${id}/note/update/`, {

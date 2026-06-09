@@ -25,7 +25,7 @@ export default function AdminDashboard() {
       })
       .catch(() => setError("Failed to load dashboard."))
       .finally(() => setLoading(false));
-  }, []);
+  }, [api, navigate, user?.role]);
 
   if (loading) return <p>Loading…</p>;
   if (error) return <p style={{ color: "var(--color-absent)" }}>{error}</p>;

@@ -24,10 +24,14 @@ def student_detail(request, student_id):
     try:
         student = Student.objects.get(pk=student_id)
     except Student.DoesNotExist:
-        return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND
+        )
 
     total = AttendanceRecord.objects.filter(student=student).count()
-    present = AttendanceRecord.objects.filter(student=student, status="present").count()
+    present = AttendanceRecord.objects.filter(
+        student=student, status="present"
+    ).count()
     attendance_pct = round(present / total * 100, 1) if total else 0
 
     data = StudentSerializer(student).data
@@ -45,9 +49,13 @@ def get_note(request, student_id):
     try:
         student = Student.objects.get(pk=student_id)
     except Student.DoesNotExist:
-        return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND
+        )
 
-    note = StudentNote.objects.filter(student=student, instructor=request.user).first()
+    note = StudentNote.objects.filter(
+        student=student, instructor=request.user
+    ).first()
     if not note:
         return Response({"content": "", "updated_at": None})
     return Response(StudentNoteSerializer(note).data)
@@ -59,10 +67,16 @@ def update_note(request, student_id):
     try:
         student = Student.objects.get(pk=student_id)
     except Student.DoesNotExist:
-        return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND
+        )
 
-    note, _ = StudentNote.objects.get_or_create(student=student, instructor=request.user)
-    serializer = StudentNoteSerializer(note, data=request.data, partial=True, context={"request": request})
+    note, _ = StudentNote.objects.get_or_create(
+        student=student, instructor=request.user
+    )
+    serializer = StudentNoteSerializer(
+        note, data=request.data, partial=True, context={"request": request}
+    )
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data)
@@ -75,11 +89,18 @@ def summarize_student_note(request, student_id):
     try:
         student = Student.objects.get(pk=student_id)
     except Student.DoesNotExist:
-        return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND
+        )
 
-    note = StudentNote.objects.filter(student=student, instructor=request.user).first()
+    note = StudentNote.objects.filter(
+        student=student, instructor=request.user
+    ).first()
     if not note or not note.content.strip():
-        return Response({"detail": "No note content to summarize."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"detail": "No note content to summarize."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     result = summarize_note(note.content)
     return Response(result)
@@ -91,18 +112,24 @@ def student_attendance_trend(request, student_id):
     try:
         student = Student.objects.get(pk=student_id)
     except Student.DoesNotExist:
-        return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND
+        )
 
     records = (
-        AttendanceRecord.objects
-        .filter(student=student)
+        AttendanceRecord.objects.filter(student=student)
         .order_by("session__started_at")
         .values("session_id", "status")
     )
-    records_list = [{"session": r["session_id"], "status": r["status"]} for r in records]
+    records_list = [
+        {"session": r["session_id"], "status": r["status"]} for r in records
+    ]
 
     if not records_list:
-        return Response({"detail": "No attendance records found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"detail": "No attendance records found."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
 
     result = get_attendance_trend(records_list)
     return Response(result)
@@ -114,11 +141,12 @@ def student_attendance_history(request, student_id):
     try:
         student = Student.objects.get(pk=student_id)
     except Student.DoesNotExist:
-        return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND
+        )
 
     records = (
-        AttendanceRecord.objects
-        .filter(student=student)
+        AttendanceRecord.objects.filter(student=student)
         .select_related("session")
         .order_by("session__started_at")
     )
@@ -139,7 +167,9 @@ def deactivate_student(request, student_id):
     try:
         student = Student.objects.get(pk=student_id)
     except Student.DoesNotExist:
-        return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND
+        )
 
     student.is_active = False
     student.save()

@@ -8,7 +8,9 @@ class UserProfile(models.Model):
         ("instructor", "Instructor"),
     ]
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="profile"
+    )
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -21,7 +23,11 @@ class Student(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
-        User, null=True, blank=True, on_delete=models.SET_NULL, related_name="students_created"
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="students_created",
     )
 
     def __str__(self):
@@ -29,8 +35,12 @@ class Student(models.Model):
 
 
 class StudentProfile(models.Model):
-    student = models.OneToOneField(Student, on_delete=models.CASCADE, related_name="profile")
-    photo = models.ImageField(upload_to="student_photos/", null=True, blank=True)
+    student = models.OneToOneField(
+        Student, on_delete=models.CASCADE, related_name="profile"
+    )
+    photo = models.ImageField(
+        upload_to="student_photos/", null=True, blank=True
+    )
     bio = models.TextField(blank=True)
 
     def __str__(self):
@@ -38,8 +48,12 @@ class StudentProfile(models.Model):
 
 
 class StudentNote(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="notes")
-    instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="student_notes")
+    student = models.ForeignKey(
+        Student, on_delete=models.CASCADE, related_name="notes"
+    )
+    instructor = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="student_notes"
+    )
     content = models.TextField(blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -51,7 +65,9 @@ class StudentNote(models.Model):
 
 
 class Session(models.Model):
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sessions")
+    created_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="sessions"
+    )
     started_at = models.DateTimeField(auto_now_add=True)
     ended_at = models.DateTimeField(null=True, blank=True)
     description = models.TextField(blank=True)
@@ -66,11 +82,21 @@ class AttendanceRecord(models.Model):
         ("absent", "Absent"),
     ]
 
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="attendance_records")
-    session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name="attendance_records")
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="present")
+    student = models.ForeignKey(
+        Student, on_delete=models.CASCADE, related_name="attendance_records"
+    )
+    session = models.ForeignKey(
+        Session, on_delete=models.CASCADE, related_name="attendance_records"
+    )
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, default="present"
+    )
     recorded_by = models.ForeignKey(
-        User, null=True, blank=True, on_delete=models.SET_NULL, related_name="recorded_attendance"
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="recorded_attendance",
     )
 
     class Meta:

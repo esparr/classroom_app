@@ -8,4 +8,6 @@ class FuzzyMatcher(dspy.Module):
         self.match = dspy.ChainOfThought(FuzzyNameMatch)
 
     def forward(self, spoken_name, candidate_names):
-        return self.match(spoken_name=spoken_name, candidate_names=candidate_names)
+        return self.match(
+            spoken_name=spoken_name, candidate_names=candidate_names
+        )

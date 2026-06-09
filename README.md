@@ -194,6 +194,35 @@ If multiple options are configured, priority order is: **MLX → Ollama → Clou
 
 ---
 
+## Development & Code Standards
+
+### Python — Black (formatting) + Flake8 (linting)
+
+All Python code is formatted with [Black](https://black.readthedocs.io/) and linted with [Flake8](https://flake8.pycqa.org/). Both are configured to use a **79-character line length**. Run both from `backend/` before committing:
+
+```bash
+pipenv run black .
+pipenv run flake8 .
+```
+
+To check formatting without making changes:
+
+```bash
+pipenv run black --check .
+```
+
+Configuration lives in `backend/pyproject.toml` (Black) and `backend/.flake8` (Flake8). Django settings files are excluded from the `F401`/`F403` star-import rules since `from .base import *` is an intentional pattern there.
+
+### JavaScript Linting — ESLint
+
+The frontend uses ESLint. Run it from `frontend/`:
+
+```bash
+npm run lint
+```
+
+---
+
 ## Security
 
 > **Never commit `.env` to version control.** It is listed in `.gitignore` — keep it that way.

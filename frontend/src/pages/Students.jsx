@@ -17,7 +17,7 @@ export default function Students() {
       .then((data) => setStudents(data ?? []))
       .catch(() => setError("Failed to load students."))
       .finally(() => setLoading(false));
-  }, []);
+  }, [api]);
 
   const filtered = students.filter((s) =>
     s.name.toLowerCase().includes(search.toLowerCase())

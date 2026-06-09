@@ -20,13 +20,23 @@ class ClassroomConfig(AppConfig):
 
         if mlx_base_url and model:
             if not _server_reachable(mlx_base_url):
-                logger.warning("MLX server at %s is not reachable — DSPy will not be configured. AI features will be unavailable.", mlx_base_url)
+                logger.warning(
+                    "MLX server at %s is not reachable — DSPy will"
+                    " not be configured. AI features will be"
+                    " unavailable.",
+                    mlx_base_url,
+                )
                 return
             lm = dspy.LM(model=model, api_base=mlx_base_url, api_key="mlx")
             dspy.configure(lm=lm)
         elif api_base and model:
             if not _server_reachable(api_base):
-                logger.warning("Ollama server at %s is not reachable — DSPy will not be configured. AI features will be unavailable.", api_base)
+                logger.warning(
+                    "Ollama server at %s is not reachable — DSPy will"
+                    " not be configured. AI features will be"
+                    " unavailable.",
+                    api_base,
+                )
                 return
             lm = dspy.LM(model=model, api_base=api_base, api_key="ollama")
             dspy.configure(lm=lm)
@@ -38,10 +48,13 @@ class ClassroomConfig(AppConfig):
 def _server_reachable(base_url: str) -> bool:
     import urllib.request
     import urllib.error
+
     try:
         urllib.request.urlopen(base_url, timeout=3)
         return True
     except urllib.error.HTTPError:
-        return True  # HTTP error means the server is up but rejected the request
+        return (
+            True  # HTTP error means the server is up but rejected the request
+        )
     except Exception:
         return False

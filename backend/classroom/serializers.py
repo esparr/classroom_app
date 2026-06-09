@@ -1,5 +1,11 @@
 from rest_framework import serializers
-from .models import Student, StudentProfile, StudentNote, Session, AttendanceRecord
+from .models import (
+    Student,
+    StudentProfile,
+    StudentNote,
+    Session,
+    AttendanceRecord,
+)
 
 
 class StudentSerializer(serializers.ModelSerializer):
@@ -7,7 +13,14 @@ class StudentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Student
-        fields = ["id", "name", "is_active", "created_at", "created_by", "total_sessions_attended"]
+        fields = [
+            "id",
+            "name",
+            "is_active",
+            "created_at",
+            "created_by",
+            "total_sessions_attended",
+        ]
         read_only_fields = ["created_at", "created_by"]
 
     def get_total_sessions_attended(self, obj):
@@ -40,7 +53,14 @@ class SessionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Session
-        fields = ["id", "created_by", "started_at", "ended_at", "description", "attendance_count"]
+        fields = [
+            "id",
+            "created_by",
+            "started_at",
+            "ended_at",
+            "description",
+            "attendance_count",
+        ]
         read_only_fields = ["created_by", "started_at"]
 
     def get_attendance_count(self, obj):
@@ -49,7 +69,9 @@ class SessionSerializer(serializers.ModelSerializer):
 
 class AttendanceRecordSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(source="student.name", read_only=True)
-    recorded_by_username = serializers.CharField(source="recorded_by.username", read_only=True, default=None)
+    recorded_by_username = serializers.CharField(
+        source="recorded_by.username", read_only=True, default=None
+    )
 
     class Meta:
         model = AttendanceRecord
