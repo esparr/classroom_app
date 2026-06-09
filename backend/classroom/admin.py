@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import UserProfile, Student, StudentProfile, StudentNote, Session, AttendanceRecord
+from .models import (
+    UserProfile,
+    Student,
+    StudentProfile,
+    StudentNote,
+    Session,
+    AttendanceRecord,
+)
 
 
 @admin.register(UserProfile)
@@ -29,7 +36,13 @@ class StudentNoteAdmin(admin.ModelAdmin):
 
 @admin.register(Session)
 class SessionAdmin(admin.ModelAdmin):
-    list_display = ("pk", "created_by", "started_at", "ended_at", "description")
+    list_display = (
+        "pk",
+        "created_by",
+        "started_at",
+        "ended_at",
+        "description",
+    )
     list_filter = ("created_by",)
 
 

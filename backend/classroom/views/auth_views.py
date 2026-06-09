@@ -16,33 +16,46 @@ def login(request):
     password = request.data.get("password")
     user = authenticate(username=username, password=password)
     if user is None:
-        return Response({"detail": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(
+            {"detail": "Invalid credentials."},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
     refresh = RefreshToken.for_user(user)
-    return Response({
-        "access": str(refresh.access_token),
-        "refresh": str(refresh),
-        "role": _role(user),
-    })
+    return Response(
+        {
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+            "role": _role(user),
+        }
+    )
 
 
 @api_view(["POST"])
 def refresh(request):
     token = request.data.get("refresh")
     if not token:
-        return Response({"detail": "Refresh token required."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"detail": "Refresh token required."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     try:
         refresh_token = RefreshToken(token)
         return Response({"access": str(refresh_token.access_token)})
     except Exception:
-        return Response({"detail": "Invalid or expired token."}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(
+            {"detail": "Invalid or expired token."},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
 
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def me(request):
     user = request.user
-    return Response({
-        "id": user.id,
-        "username": user.username,
-        "role": _role(user),
-    })
+    return Response(
+        {
+            "id": user.id,
+            "username": user.username,
+            "role": _role(user),
+        }
+    )

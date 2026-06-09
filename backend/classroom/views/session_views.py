@@ -11,7 +11,9 @@ from classroom.permissions import IsInstructorOrAdmin
 @api_view(["POST"])
 @permission_classes([IsAuthenticated, IsInstructorOrAdmin])
 def create_session(request):
-    serializer = SessionSerializer(data=request.data, context={"request": request})
+    serializer = SessionSerializer(
+        data=request.data, context={"request": request}
+    )
     if serializer.is_valid():
         serializer.save(created_by=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -32,15 +34,22 @@ def close_session(request, session_id):
     try:
         session = Session.objects.get(pk=session_id)
     except Session.DoesNotExist:
-        return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND
+        )
 
     user = request.user
     is_admin = hasattr(user, "profile") and user.profile.role == "admin"
     if session.created_by != user and not is_admin:
-        return Response({"detail": "Not allowed."}, status=status.HTTP_403_FORBIDDEN)
+        return Response(
+            {"detail": "Not allowed."}, status=status.HTTP_403_FORBIDDEN
+        )
 
     if session.ended_at:
-        return Response({"detail": "Session already closed."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"detail": "Session already closed."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     session.ended_at = timezone.now()
     session.save()

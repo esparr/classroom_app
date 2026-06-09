@@ -1,0 +1,4 @@
+[flake8]
+extend-ignore = E203
+per-file-ignores =
+    config/settings/*.py: F401,F403

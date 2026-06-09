@@ -13,8 +13,7 @@ def dashboard(request):
 
     # Top 10 attendees by present count
     top_attendees = (
-        AttendanceRecord.objects
-        .filter(status="present")
+        AttendanceRecord.objects.filter(status="present")
         .values("student__id", "student__name")
         .annotate(sessions_attended=Count("id"))
         .order_by("-sessions_attended")[:10]
@@ -30,24 +29,27 @@ def dashboard(request):
         present = student.attendance_records.filter(status="present").count()
         pct = present / total * 100
         if pct < 50:
-            low_attendance.append({
-                "id": student.id,
-                "name": student.name,
-                "attendance_percentage": round(pct, 1),
-            })
+            low_attendance.append(
+                {
+                    "id": student.id,
+                    "name": student.name,
+                    "attendance_percentage": round(pct, 1),
+                }
+            )
 
     # Per-instructor session counts
     instructor_counts = (
-        Session.objects
-        .values("created_by__id", "created_by__username")
+        Session.objects.values("created_by__id", "created_by__username")
         .annotate(session_count=Count("id"))
         .order_by("-session_count")
     )
 
-    return Response({
-        "total_sessions": total_sessions,
-        "total_students": total_students,
-        "top_attendees": list(top_attendees),
-        "low_attendance_students": low_attendance,
-        "sessions_per_instructor": list(instructor_counts),
-    })
+    return Response(
+        {
+            "total_sessions": total_sessions,
+            "total_students": total_students,
+            "top_attendees": list(top_attendees),
+            "low_attendance_students": low_attendance,
+            "sessions_per_instructor": list(instructor_counts),
+        }
+    )

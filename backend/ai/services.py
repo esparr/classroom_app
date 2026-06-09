@@ -9,7 +9,9 @@ _attendance_trend = AttendanceTrendAnalyzer()
 
 def match_name(spoken_name: str, candidate_names: list[str]) -> dict:
     candidates = ", ".join(candidate_names)
-    result = _fuzzy_matcher(spoken_name=spoken_name, candidate_names=candidates)
+    result = _fuzzy_matcher(
+        spoken_name=spoken_name, candidate_names=candidates
+    )
     return {
         "best_match": result.best_match,
         "confidence": result.confidence,
@@ -21,7 +23,9 @@ def summarize_note(note_content: str) -> dict:
     result = _note_summarizer(raw_notes=note_content)
     return {
         "summary": result.summary,
-        "key_points": [kp.strip() for kp in result.key_points.split(",") if kp.strip()],
+        "key_points": [
+            kp.strip() for kp in result.key_points.split(",") if kp.strip()
+        ],
     }
 
 

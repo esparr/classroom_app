@@ -82,7 +82,7 @@ export default function TakeAttendance() {
         setError(`Speech network error — retrying (${retryCountRef.current}/${MAX_RETRIES})…`);
         setTimeout(() => {
           if (recognitionRef.current) {
-            try { recognitionRef.current.start(); } catch {}
+            try { recognitionRef.current.start(); } catch { /* start() throws if already running */ }
           }
         }, 1000);
       } else {

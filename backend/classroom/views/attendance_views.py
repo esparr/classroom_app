@@ -11,7 +11,9 @@ from classroom.permissions import IsInstructorOrAdmin
 def _fuzzy_match(name, roster):
     """Return the best-matching Student for name, or None if below cutoff."""
     name_map = {s.name.lower(): s for s in roster}
-    matches = difflib.get_close_matches(name.lower(), name_map.keys(), n=1, cutoff=0.7)
+    matches = difflib.get_close_matches(
+        name.lower(), name_map.keys(), n=1, cutoff=0.7
+    )
     return name_map[matches[0]] if matches else None
 
 
@@ -21,11 +23,16 @@ def bulk_attendance(request, session_id):
     try:
         session = Session.objects.get(pk=session_id)
     except Session.DoesNotExist:
-        return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND
+        )
 
     names = request.data.get("names", [])
     if not isinstance(names, list):
-        return Response({"detail": "'names' must be a list of strings."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"detail": "'names' must be a list of strings."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     roster = list(Student.objects.filter(is_active=True))
     matched, created_students = [], []
@@ -35,7 +42,9 @@ def bulk_attendance(request, session_id):
         if student:
             matched.append(student.name)
         else:
-            student = Student.objects.create(name=name, created_by=request.user)
+            student = Student.objects.create(
+                name=name, created_by=request.user
+            )
             roster.append(student)
             created_students.append(student.name)
 
@@ -45,12 +54,19 @@ def bulk_attendance(request, session_id):
             defaults={"status": "present", "recorded_by": request.user},
         )
 
-    all_records = AttendanceRecord.objects.filter(session=session).select_related("student", "recorded_by")
-    return Response({
-        "matched": matched,
-        "created": created_students,
-        "attendance": AttendanceRecordSerializer(all_records, many=True).data,
-    }, status=status.HTTP_201_CREATED)
+    all_records = AttendanceRecord.objects.filter(
+        session=session
+    ).select_related("student", "recorded_by")
+    return Response(
+        {
+            "matched": matched,
+            "created": created_students,
+            "attendance": AttendanceRecordSerializer(
+                all_records, many=True
+            ).data,
+        },
+        status=status.HTTP_201_CREATED,
+    )
 
 
 @api_view(["GET"])
@@ -59,7 +75,11 @@ def list_attendance(request, session_id):
     try:
         session = Session.objects.get(pk=session_id)
     except Session.DoesNotExist:
-        return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND
+        )
 
-    records = AttendanceRecord.objects.filter(session=session).select_related("student", "recorded_by")
+    records = AttendanceRecord.objects.filter(session=session).select_related(
+        "student", "recorded_by"
+    )
     return Response(AttendanceRecordSerializer(records, many=True).data)
